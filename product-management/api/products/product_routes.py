@@ -1,6 +1,6 @@
 from flask import Blueprint
 from flask import Flask, json, Response, request
-from products import product_table_client
+# from products import product_table_client
 from custom_logger import setup_logger
 
 # Set up the custom logger and the Blueprint
@@ -17,7 +17,8 @@ def health_check():
 def get_all_products():
 
     #returns all the products coming from dynamodb
-    serviceResponse = product_table_client.getAllProducts()
+    serviceResponse = json.dumps({"response" : "Gets all products",
+                        "test": "test"})
     
     resp = Response(serviceResponse)
     resp.headers["Content-Type"] = "application/json"
@@ -28,7 +29,7 @@ def get_all_products():
 def get_product(product_id):
 
     #returns a product given its id
-    serviceResponse = product_table_client.getProduct(product_id)
+    serviceResponse = json.dumps({"response" : "Gets a product with id {}".format(product_id)})
 
     resp = Response(serviceResponse)
     resp.headers["Content-Type"] = "application/json"
@@ -40,7 +41,10 @@ def create_product():
 
     #creates a new product. The product id is automatically generated.
     product_dict = json.loads(request.data)
-    serviceResponse = product_table_client.createProduct(product_dict)
+    serviceResponse = json.dumps({
+                        "response" : "Creates a new product.",
+                        "body": product_dict
+                    })
 
     resp = Response(serviceResponse)
     resp.headers["Content-Type"] = "application/json"
@@ -53,7 +57,10 @@ def update_product(product_id):
     
     #updates a product given its id.
     product_dict = json.loads(request.data)
-    serviceResponse = product_table_client.updateProduct(product_id, product_dict)
+    serviceResponse = json.dumps({
+                        "response" : "Updates an existing product",
+                        "body": product_dict
+                    })
 
     resp = Response(serviceResponse)
     resp.headers["Content-Type"] = "application/json"
@@ -64,7 +71,7 @@ def update_product(product_id):
 def delete_product(product_id):
     
     #deletes a product given its id.
-    serviceResponse = product_table_client.deleteProduct(product_id)
+    serviceResponse = json.dumps({"response" : "Deletes a product with id: {}".format(product_id)})
 
     resp = Response(serviceResponse)
     resp.headers["Content-Type"] = "application/json"

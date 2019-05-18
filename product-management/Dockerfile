@@ -1,4 +1,4 @@
-FROM python:3
+FROM python:3.6
 
 ENV PYTHONBUFFERED 1
 
@@ -15,6 +15,8 @@ RUN pip install -r requirements.txt
 ADD . /code/
 
 WORKDIR /code/api
+
+EXPOSE 8080
 
 ENTRYPOINT ["python"]
 
