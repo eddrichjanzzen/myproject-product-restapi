@@ -1,0 +1,20 @@
+[
+	{
+		"product_id": "4e53920c-505a-4a90-a694-b9300791f0ae",
+		"name": "Soap",
+		"description": "Used to wash body",
+		"image_url": "https://via.placeholder.com/150"
+	},
+	{
+		"product_id": "2b473002-36f8-4b87-954e-9a377e0ccbec",
+		"name": "Shampoo",
+		"description": "Used to wash hair",
+		"image_url": "https://via.placeholder.com/150"
+	},
+	{
+		"providerId": "3f0f196c-4a7b-43af-9e29-6522a715342d",
+		"name": "Tissue",
+		"description": "thin, soft paper, typically used for wrapping or protecting fragile or delicate articles.",
+		"image_url": "https://via.placeholder.com/150"
+	}
+]

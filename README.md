@@ -1,39 +1,12 @@
 
-# Backend Python Flask RestAPI  
 
-## Prerequsites
-- AWS Account
-- IAM User with Administrator Access and Access Keys
-- AWS CLI
-```
-$ aws --version
-aws-cli/1.16.8 Python/2.7.10 Darwin/16.7.0 botocore/1.11.8
-```
-- Git
-```
-$ git --version
-git version 2.14.3 (Apple Git-98)
-```
-- Python
-```
-$ python
-Python 2.7.10 (default, Feb  7 2017, 00:08:15) 
-[GCC 4.2.1 Compatible Apple LLVM 8.0.0 (clang-800.0.34)] on darwin
-Type "help", "copyright", "credits" or "license" for more information.
->>> 
-```
-- Docker
-```
-$ docker -v
-Docker version 18.09.2, build 6247962
-```
+# Backend Python Flask RestAPI  
 
 The Backend Project Layout will look like this:
 
 ```
 ~/environment/python-restapi-service
 ├── README.md
-├── aws-cli
 └── product-management
     ├── Dockerfile
     ├── api
@@ -59,44 +32,297 @@ The Backend Project Layout will look like this:
 
 ### Step 1.1: Create a CodeCommit Repository
 ```
-$ aws codecommit create-repository --repository-name Product-Managment-Svc-Repo
+$ aws codecommit create-repository --repository-name myproject-product-restapi
 ```
 
 ### Step 1.2: Clone the repository
 ```
 $ cd ~/environment
-$ git clone https://git-codecommit.us-east-1.amazonaws.com/v1/repos/Product-Managment-Svc-Repo
+$ git clone https://git-codecommit.us-east-1.amazonaws.com/v1/repos/myproject-product-restapi
 ```
 
-### Step 1.3: Copy CRUD template into contents into the code commit repository
+
+### Step 1.3: Set up .gitignore
 ```
-$ cp -r ~/environment/python-restapi-service/product-management/* ~/environment/python-restapi-service/Product-Managment-Svc-Repo/
+$ cd ~/environment/myproject-provider-restapi
+$ vi .gitignore
+```
+```
+# Byte-compiled / optimized / DLL files
+__pycache__/
+.api/__pycache__/
+.api/products/__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Virtual environment
+venv
+*.pyc
+```
+
+### Step 1.4: Test access to repo by adding README.md file and push to remote repository
+
+```
+$ cd ~/environment/myproject-product-restapi
+$ echo "myproject-product-restapi" >> README.md
 $ git add .
-$ git commit -m "Copy CRUD template into codecommit repository
+$ git commit -m "Adding README.md"
 $ git push origin master
 ```
 
-### Step 1.4: Navigate to working directory
+### Step 1.5: Navigate to working directory
 ```
-$ cd ~/environment/Product-Management-Svc-Repo
+$ cd ~/environment/myproject-product-restapi
 $ python3 -m venv venv
 $ source venv/bin/activate
 $ venv/bin/pip install flask
 $ venv/bin/pip install flask-cors
 ```
-### Step 1.5: Run Locally and Test
+
+### Step 1.6:  Set up directory structure
 ```
-$ cd ~/environment/Product-Management-Svc-Repo/api
+$ mkdir api
+$ cd api
+$ mkdir product
+$ cd products
+```
+
+###  Step 1.7: prepare static database
+
+```
+$ cd ~/environment/myproject-product-restapi/products
+$ vi ~/products.json
+
+```
+```
+[
+  {
+    "product_id": "4e53920c-505a-4a90-a694-b9300791f0ae",
+    "name": "Soap",
+    "description": "Used to wash body",
+    "image_url": "https://via.placeholder.com/150"
+  },
+  {
+    "product_id": "2b473002-36f8-4b87-954e-9a377e0ccbec",
+    "name": "Shampoo",
+    "description": "Used to wash hair",
+    "image_url": "https://via.placeholder.com/150"
+  },
+  {
+    "providerId": "3f0f196c-4a7b-43af-9e29-6522a715342d",
+    "name": "Tissue",
+    "description": "thin, soft paper, typically used for wrapping or protecting fragile or delicate articles.",
+    "image_url": "https://via.placeholder.com/150"
+  }
+]
+```
+
+### Step 1.8:  Add the routes for product management
+
+In products folder, add the ff files:
+File Name: **product_routes.py**
+```
+import os
+import uuid
+from flask import Blueprint
+from flask import Flask, json, Response, request
+from custom_logger import setup_logger
+
+# Set up the custom logger and the Blueprint
+logger = setup_logger(__name__)
+product_module = Blueprint('products', __name__)
+
+
+logger.info("Intialized product routes")
+
+THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
+my_file = os.path.join(THIS_FOLDER, 'products.json')
+
+# load products static db from json file
+with open(my_file) as f:
+    products = json.load(f)
+
+
+# Allow the default route to return a health check
+@product_module.route('/')
+def health_check():
+    return "This a health check. Product Management Service is up and running."
+
+    
+@product_module.route('/products')
+def get_all_products():
+
+    #returns all the products coming from dynamodb
+    serviceResponse = json.dumps({'products': products})
+    
+    resp = Response(serviceResponse)
+    resp.headers["Content-Type"] = "application/json"
+    
+    return resp
+    
+@product_module.route("/products/<product_id>", methods=['GET'])
+def get_product(product_id):
+
+    #returns a product given its id
+    serviceResponse = json.dumps({'products': products[0]})
+
+    resp = Response(serviceResponse)
+    resp.headers["Content-Type"] = "application/json"
+
+    return resp
+
+@product_module.route("/products", methods=['POST'])
+def create_product():
+
+    product_dict = json.loads(request.data)
+
+    product = {
+        'product_id': str(uuid.uuid4()),
+        'name': product_dict['name'],
+        'description': product_dict['description'],
+        'image_url': product_dict['image_url']
+    }
+
+
+    serviceResponse = json.dumps({'products': product})
+    resp = Response(serviceResponse)
+
+    resp.headers["Content-Type"] = "application/json"
+
+    return resp
+
+
+@product_module.route("/products/<product_id>", methods=['PUT'])
+def update_product(product_id):
+    
+       #creates a new product. The product id is automatically generated.
+    product_dict = json.loads(request.data)
+
+    products[0]['name'] = request.json.get('name', products[0]['name'])
+    products[0]['description'] = request.json.get('description', products[0]['description'])
+    products[0]['image_url'] = request.json.get('image_url', products[0]['image_url'])
+    
+    serviceResponse = json.dumps({'products': products[0]})
+
+    resp = Response(serviceResponse)
+    resp.headers["Content-Type"] = "application/json"
+
+    return resp
+
+@product_module.route("/products/<product_id>", methods=['DELETE'])
+def delete_product(product_id):
+    
+    #deletes a product given its id.
+    serviceResponse = json.dumps({"products" : "Deletes a product with id: {}".format(product_id)})
+
+    products.remove(products[0])
+
+    resp = Response(serviceResponse)
+    resp.headers["Content-Type"] = "application/json"
+
+    return resp
+
+
+```
+
+### Step 1.9:  Add the app.py and custom logger
+
+In products folder, add the ff files:
+
+1. File Name: **app.py**
+
+```
+from flask import Flask
+from flask_cors import CORS
+
+# Add new blueprints here
+from products.product_routes import product_module
+
+# Initialize the flask application
+app = Flask(__name__)
+CORS(app)
+
+# Add a blueprint for the products module
+app.register_blueprint(product_module)
+
+# Run the application
+app.run(host="0.0.0.0", port=8080, debug=True)
+
+```
+
+2. File Name: **custom_logger.py**
+
+```
+import logging
+
+def setup_logger(name):
+    formatter = logging.Formatter(fmt='[%(levelname)s][{}] %(asctime)s:%(threadName)s:%(message)s'.format(name), datefmt='%Y-%m-%d %H:%M:%S')
+
+    handler = logging.StreamHandler()
+    handler.setFormatter(formatter)
+
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(handler)
+    
+    return logger
+```
+
+
+### Step 1.10: Run Locally and Test
+```
+$ cd ~/environment/myproject-product-restapi/api
 $ python app.py
 $ curl http://localhost:8080
 ```
 
-### Step 1.10: Backend Unit Tests
+### Step 1.11: Backend Unit Tests
 Todo
 
-### Step 1.11: Create the Dockerfile
+### Step 1.12: Create the Dockerfile
 ```
-$ cd ~/environment/Product-Management-Svc-Repo  
+$ cd ~/environment/myproject-product-restapi 
 $ vi Dockerfile
 ```
 ```
@@ -132,12 +358,12 @@ Replace:
 - Region: us-east-1
 
 ```
-$ docker build -t product-management-service .
-$ docker tag product-management-service:latest 707538076348.dkr.ecr.us-east-1.amazonaws.com/product-management-service:latest
-$ docker run -p 8000:8000 product-management-service:latest
+$ docker build -t myproject-product-restapi .
+$ docker tag myproject-product-restapi:latest 707538076348.dkr.ecr.us-east-1.amazonaws.com/myproject-product-restapi:latest
+$ docker run -p 8000:8000 myproject-product-restapi:latest
 ```
 
-### Step 1.15: Test CRUD Operations
+### Step 1.14: Test CRUD Operations
 - Test Get all Products
 ```
 curl -X GET \
@@ -145,7 +371,28 @@ curl -X GET \
   -H 'Host: localhost:8080'
 ```
 ```
-{"response": "Gets all products", "test": "test"}
+{
+    "products": [
+        {
+            "description": "Used to wash body",
+            "image_url": "https://via.placeholder.com/150",
+            "name": "Soap",
+            "product_id": "4e53920c-505a-4a90-a694-b9300791f0ae"
+        },
+        {
+            "description": "Used to wash hair",
+            "image_url": "https://via.placeholder.com/150",
+            "name": "Shampoo",
+            "product_id": "2b473002-36f8-4b87-954e-9a377e0ccbec"
+        },
+        {
+            "description": "thin, soft paper, typically used for wrapping or protecting fragile or delicate articles.",
+            "image_url": "https://via.placeholder.com/150",
+            "name": "Tissue",
+            "providerId": "3f0f196c-4a7b-43af-9e29-6522a715342d"
+        }
+    ]
+}
 ```
 - Test Get Product
 ```
@@ -154,28 +401,34 @@ curl -X GET \
   -H 'Host: localhost:8080' 
 ```
 ```
-{"response": "Gets a product with id d58ada00-1d53-4164-9453-b8fe3fb080c5"}
+{
+    "products": {
+        "description": "Used to wash body",
+        "image_url": "https://via.placeholder.com/150",
+        "name": "Soap",
+        "product_id": "4e53920c-505a-4a90-a694-b9300791f0ae"
+    }
+}
 ```
 - Test Create Product
 ```
 curl -X POST \
   http://localhost:8080/products \
-  -H 'Host: localhost:8080' \
   -H 'Content-Type: application/json' \
   -d '{
-    "product_name":"Product G",
-    "product_description": "Nulla nec dolor a ipsum viverra tincidunt eleifend id orci. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.",
-    "product_image_url": "https://via.placeholder.com/200"
+  "name":"Product G",
+  "description": "Nulla nec dolor a ipsum viverra tincidunt eleifend id orci. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.",
+  "image_url": "https://via.placeholder.com/200"
 }'
 ```
 ```
-{  
-"body":{  
-"product_description":"Nulla nec dolor a ipsum viverra tincidunt eleifend id orci. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.",  
-"product_image_url":"https://via.placeholder.com/200",  
-"product_name":"Product G"  
-},  
-"response":"Creates a new product."  
+{
+    "products": {
+        "description": "Nulla nec dolor a ipsum viverra tincidunt eleifend id orci. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.",
+        "image_url": "https://via.placeholder.com/200",
+        "name": "Product G",
+        "product_id": "e5870573-a9f0-49ee-bee3-d491bcfa5cf1"
+    }
 }
 ```
 - Test Update Product
@@ -184,19 +437,19 @@ curl -X PUT \
   http://localhost:8080/products/d58ada00-1d53-4164-9453-b8fe3fb080c5 \
   -H 'Content-Type: application/json' \
   -d '{
-    "product_name":"egg 123",
-    "product_description": "my working description dasdasds",
-    "product_image_url": "product_image testes update test"
+  "name":"egg 123",
+  "description": "my working description dasdasds",
+  "image_url": "product_image testes update test"
 }'
 ```
 ```
-{  
-"body":{  
-"product_description":"my working description dasdasds",  
-"product_image_url":"product_image testes update test",  
-"product_name":"egg 123"  
-},  
-"response":"Updates an existing product"  
+{
+    "products": {
+        "description": "my working description dasdasds",
+        "image_url": "product_image testes update test",
+        "name": "egg 123",
+        "product_id": "4e53920c-505a-4a90-a694-b9300791f0ae"
+    }
 }
 ```
 
@@ -212,29 +465,29 @@ curl -X DELETE \
 }
 ```
 
-### Step 1.16: Create the ECR Repository
+### Step 1.15: Create the ECR Repository
 ```
-$ aws ecr create-repository --repository-name Product-Management-Svc
+$ aws ecr create-repository --repository-name myproject-product-restapi
 ```
 
-### Step 1.17: Run login command to retrieve credentials for our Docker client and then automatically execute it (include the full command including the $ below).
+### Step 1.16: Run login command to retrieve credentials for our Docker client and then automatically execute it (include the full command including the $ below).
 ```
 $ $(aws ecr get-login --no-include-email)
 ```
 
-### Step 1.18: Push our Docker Image
+### Step 1.17: Push our Docker Image
 ```
-$ docker push 707538076348.dkr.ecr.us-east-1.amazonaws.com/product-management-service:latest
+$ docker push 707538076348.dkr.ecr.us-east-1.amazonaws.com/myproject-product-restapi:latest
 ```
 
-### Step 1.19: Validate Image has been pushed
+### Step 1.18: Validate Image has been pushed
 ```
-$ aws ecr describe-images --repository-name product-management-service
+$ aws ecr describe-images --repository-name myproject-product-restapi
 ```
 
 ### (Optional) Clean up
 ```
-$ aws ecr delete-repository --repository-name product-management-service --force
-$ aws codecommit delete-repository --repository-name Product-Management-Svc-Repo
-$ rm -rf ~/environment/Product-Management-Svc-Repo
+$ aws ecr delete-repository --repository-name myproject-product-restapi --force
+$ aws codecommit delete-repository --repository-name myproject-product-restapi
+$ rm -rf ~/environment/myproject-product-restapi
 ```
