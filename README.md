@@ -103,7 +103,7 @@ venv
 
 ### Step 1.4: Test access to repo by adding README.md file and push to remote repository
 
-```
+```bash
 $ cd ~/environment/myproject-product-restapi
 $ echo "myproject-product-restapi" >> README.md
 $ git add .
@@ -112,7 +112,7 @@ $ git push origin master
 ```
 
 ### Step 1.5: Navigate to working directory
-```
+```bash
 $ cd ~/environment/myproject-product-restapi
 $ python3 -m venv venv
 $ source venv/bin/activate
@@ -121,7 +121,7 @@ $ venv/bin/pip install flask-cors
 ```
 
 ### Step 1.6:  Set up directory structure
-```
+```bash
 $ mkdir api
 $ cd api
 $ mkdir product
@@ -130,12 +130,12 @@ $ cd products
 
 ###  Step 1.7: prepare static database
 
-```
+```bash
 $ cd ~/environment/myproject-product-restapi/products
 $ vi ~/products.json
 
 ```
-```
+```json
 [
   {
     "product_id": "4e53920c-505a-4a90-a694-b9300791f0ae",
@@ -162,7 +162,7 @@ $ vi ~/products.json
 
 In products folder, add the ff files:
 File Name: **product_routes.py**
-```
+```python
 import os
 import uuid
 from flask import Blueprint
@@ -272,7 +272,7 @@ In products folder, add the ff files:
 
 1. File Name: **app.py**
 
-```
+```python
 from flask import Flask
 from flask_cors import CORS
 
@@ -293,7 +293,7 @@ app.run(host="0.0.0.0", port=8080, debug=True)
 
 2. File Name: **custom_logger.py**
 
-```
+```python
 import logging
 
 def setup_logger(name):
@@ -311,7 +311,7 @@ def setup_logger(name):
 
 
 ### Step 1.10: Run Locally and Test
-```
+```bash
 $ cd ~/environment/myproject-product-restapi/api
 $ python app.py
 $ curl http://localhost:8080
@@ -321,7 +321,7 @@ $ curl http://localhost:8080
 Todo
 
 ### Step 1.12: Create the Dockerfile
-```
+```bash
 $ cd ~/environment/myproject-product-restapi 
 $ vi Dockerfile
 ```
@@ -357,7 +357,7 @@ Replace:
 - AccountId: 707538076348
 - Region: us-east-1
 
-```
+```bash
 $ docker build -t myproject-product-restapi .
 $ docker tag myproject-product-restapi:latest 707538076348.dkr.ecr.us-east-1.amazonaws.com/myproject-product-restapi:latest
 $ docker run -p 8000:8000 myproject-product-restapi:latest
