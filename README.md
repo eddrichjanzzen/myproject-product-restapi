@@ -44,7 +44,7 @@ $ cd ~/environment/myproject-product-restapi
 $ vi .gitignore
 ```
 ```bash
-## Byte-compiled / optimized / DLL files
+# Byte-compiled / optimized / DLL files
 __pycache__/
 .api/__pycache__/
 .api/products/__pycache__/
@@ -75,16 +75,6 @@ share/python-wheels/
 *.egg
 MANIFEST
 
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
 # Unit test / coverage reports
 htmlcov/
 .tox/
@@ -98,78 +88,16 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-
 # Flask stuff:
 instance/
 .webassets-cache
 
-# Scrapy stuff:
-.scrapy
+# Virtual environment
+venv
+*.pyc
 
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
-
-# pyenv
-.python-version
-
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don’t work, or not
-#   install all needed dependencies.
-#Pipfile.lock
-
-# celery beat schedule file
-celerybeat-schedule
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-.DS_Store
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
+# IDE
+.vscode
 ```
 
 ### Step 1.4: Test access to repo by adding README.md file and push to remote repository
@@ -402,7 +330,7 @@ CORS(app)
 app.register_blueprint(product_module)
 
 # Run the application
-app.run(host="0.0.0.0", port=8080, debug=True)
+app.run(host="0.0.0.0", port=5000, debug=True)
 ```
 
 - custom_logger.py
@@ -430,7 +358,7 @@ def setup_logger(name):
 ```bash
 $ cd ~/environment/myproject-product-restapi
 $ python app.py
-$ curl http://localhost:8080
+$ curl http://localhost:5000
 ```
 
 ### (TODO) Step 1.10: Backend Unit Tests
@@ -446,29 +374,22 @@ $ pip freeze > requirements.txt
 $ cd ~/environment/myproject-product-restapi 
 $ vi Dockerfile
 ```
-```bash
-FROM python:3.6
-
+```
+# Set base image to python
+FROM python:3.7
 ENV PYTHONBUFFERED 1
 
-RUN mkdir /code
+# Copy source file and python req's
+COPY . /app
+WORKDIR /app
 
-WORKDIR /code
-
-ADD requirements.txt /code/
-
+# Install requirements
 RUN pip install --upgrade pip
-
 RUN pip install -r requirements.txt
 
-ADD . /code/
-
-WORKDIR /code/api
-
-EXPOSE 8080
-
+# Set image's main command and run the command within the container
+EXPOSE 5000
 ENTRYPOINT ["python"]
-
 CMD ["app.py"]
 ```
 
@@ -480,15 +401,15 @@ Replace:
 ```bash
 $ docker build -t myproject-product-restapi .
 $ docker tag myproject-product-restapi:latest 707538076348.dkr.ecr.us-east-1.amazonaws.com/myproject-product-restapi:latest
-$ docker run -p 8080:8080 myproject-product-restapi:latest
+$ docker run -p 5000:5000 myproject-product-restapi:latest
 ```
 
 ### Step 1.14: Test CRUD Operations
 - Test Get all Products
 ```bash
 curl -X GET \
-  http://localhost:8080/products \
-  -H 'Host: localhost:8080'
+  http://localhost:5000/products \
+  -H 'Host: localhost:5000'
 ```
 Response:
 ```json
@@ -519,8 +440,8 @@ Response:
 - Test Get Product
 ```bash
 curl -X GET \
-  http://localhost:8080/products/4e53920c-505a-4a90-a694-b9300791f0ae \
-  -H 'Host: localhost:8080' 
+  http://localhost:5000/products/4e53920c-505a-4a90-a694-b9300791f0ae \
+  -H 'Host: localhost:5000' 
 ```
 
 Response: 
@@ -538,7 +459,7 @@ Response:
 - Test Create Product
 ```bash
 curl -X POST \
-  http://localhost:8080/products \
+  http://localhost:5000/products \
   -H 'Content-Type: application/json' \
   -d '{
   "name":"Product G",
@@ -565,7 +486,7 @@ Response
 - Test Update Product
 ```bash
 curl -X PUT \
-  http://localhost:8080/products/4e53920c-505a-4a90-a694-b9300791f0ae \
+  http://localhost:5000/products/4e53920c-505a-4a90-a694-b9300791f0ae \
   -H 'Content-Type: application/json' \
   -d '{
   "name":"egg 123",
@@ -591,7 +512,7 @@ Response
 - Test Delete Product
 ```bash
 curl -X DELETE \
-  http://localhost:8080/products/4e53920c-505a-4a90-a694-b9300791f0ae \
+  http://localhost:5000/products/4e53920c-505a-4a90-a694-b9300791f0ae \
   -H 'Content-Type: application/json' 
 ```
 
