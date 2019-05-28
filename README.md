@@ -1,24 +1,21 @@
+# My Project Product Rest API
 
-
-# Backend Python Flask RestAPI  
-
-The Backend Project Layout will look like this:
-
+The folder structure will look like this:
 ```
-~/environment/python-restapi-service
+~/environment/myproject-product-restapi
+├── app.py
+├── custom_logger.py
+├── product_routes.py
+├── products.json
+├── requirements.txt
+├── venv/
+├── Dockerfile
 ├── README.md
-└── product-management
-    ├── Dockerfile
-    ├── api
-    │   ├── app.py
-    │   ├── custom_logger.py
-    │   └── products
-    │       └── product_routes.py
-    └── requirements.txt
+└── .gitignore
 ```
 
 ## Step 1: Create Backend using Python Flask REST API
--  Create basic CRUD functionality for a product-management service
+- Create basic CRUD functionality for a product-management service
 - The Service will be triggered by developers via a web api
 ```
 | HTTP METHOD | URI                                     | ACTION                      |
@@ -31,24 +28,23 @@ The Backend Project Layout will look like this:
 ```
 
 ### Step 1.1: Create a CodeCommit Repository
-```
+```bash
 $ aws codecommit create-repository --repository-name myproject-product-restapi
 ```
 
 ### Step 1.2: Clone the repository
-```
+```bash
 $ cd ~/environment
 $ git clone https://git-codecommit.us-east-1.amazonaws.com/v1/repos/myproject-product-restapi
 ```
 
-
 ### Step 1.3: Set up .gitignore
-```
-$ cd ~/environment/myproject-provider-restapi
+```bash
+$ cd ~/environment/myproject-product-restapi
 $ vi .gitignore
 ```
-```
-# Byte-compiled / optimized / DLL files
+```bash
+## Byte-compiled / optimized / DLL files
 __pycache__/
 .api/__pycache__/
 .api/products/__pycache__/
@@ -79,6 +75,16 @@ share/python-wheels/
 *.egg
 MANIFEST
 
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
 # Unit test / coverage reports
 htmlcov/
 .tox/
@@ -92,13 +98,78 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+
 # Flask stuff:
 instance/
 .webassets-cache
 
-# Virtual environment
-venv
-*.pyc
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
+#   However, in case of collaboration, if having platform-specific dependencies or dependencies
+#   having no cross-platform support, pipenv may install dependencies that don’t work, or not
+#   install all needed dependencies.
+#Pipfile.lock
+
+# celery beat schedule file
+celerybeat-schedule
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.DS_Store
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
 ```
 
 ### Step 1.4: Test access to repo by adding README.md file and push to remote repository
@@ -120,20 +191,10 @@ $ venv/bin/pip install flask
 $ venv/bin/pip install flask-cors
 ```
 
-### Step 1.6:  Set up directory structure
+###  Step 1.6: Prepare static database
 ```bash
-$ mkdir api
-$ cd api
-$ mkdir product
-$ cd products
-```
-
-###  Step 1.7: prepare static database
-
-```bash
-$ cd ~/environment/myproject-product-restapi/products
-$ vi ~/products.json
-
+$ cd ~/environment/myproject-product-restapi
+$ vi products.json
 ```
 ```json
 [
@@ -150,7 +211,7 @@ $ vi ~/products.json
     "image_url": "https://via.placeholder.com/150"
   },
   {
-    "providerId": "3f0f196c-4a7b-43af-9e29-6522a715342d",
+    "product_id": "3f0f196c-4a7b-43af-9e29-6522a715342d",
     "name": "Tissue",
     "description": "thin, soft paper, typically used for wrapping or protecting fragile or delicate articles.",
     "image_url": "https://via.placeholder.com/150"
@@ -158,15 +219,16 @@ $ vi ~/products.json
 ]
 ```
 
-### Step 1.8:  Add the routes for product management
-
-In products folder, add the ff files:
-File Name: **product_routes.py**
+### Step 1.7: Add product_routes.py
+```bash
+$ cd ~/environment/myproject-product-restapi
+$ vi product_routes.py
+```
 ```python
 import os
 import uuid
 from flask import Blueprint
-from flask import Flask, json, Response, request
+from flask import Flask, json, Response, request, abort
 from custom_logger import setup_logger
 
 # Set up the custom logger and the Blueprint
@@ -192,20 +254,28 @@ def health_check():
     
 @product_module.route('/products')
 def get_all_products():
-
-    #returns all the products coming from dynamodb
-    serviceResponse = json.dumps({'products': products})
     
+    try:
+        serviceResponse = json.dumps({'products': products})
+    except Exception as e:
+        logger.error(e)
+        abort(404)
+
     resp = Response(serviceResponse)
     resp.headers["Content-Type"] = "application/json"
     
     return resp
     
-@product_module.route("/products/<product_id>", methods=['GET'])
+@product_module.route("/products/<string:product_id>", methods=['GET'])
 def get_product(product_id):
+    
+    product = [p for p in products if p['product_id'] == product_id]
 
-    #returns a product given its id
-    serviceResponse = json.dumps({'products': products[0]})
+    try:
+        serviceResponse = json.dumps({'products': product[0]})
+    except Exception as e:
+        logger.error(e)
+        abort(404)
 
     resp = Response(serviceResponse)
     resp.headers["Content-Type"] = "application/json"
@@ -215,18 +285,29 @@ def get_product(product_id):
 @product_module.route("/products", methods=['POST'])
 def create_product():
 
-    product_dict = json.loads(request.data)
+    try:
+        product_dict = json.loads(request.data)
 
-    product = {
-        'product_id': str(uuid.uuid4()),
-        'name': product_dict['name'],
-        'description': product_dict['description'],
-        'image_url': product_dict['image_url']
-    }
+        product = {
+            'product_id': str(uuid.uuid4()),
+            'name': product_dict['name'],
+            'description': product_dict['description'],
+            'image_url': product_dict['image_url']
+        }
 
+        products.append(product)
 
-    serviceResponse = json.dumps({'products': product})
-    resp = Response(serviceResponse)
+        serviceResponse = json.dumps({
+                'products': product,
+                'status': 'CREATED OK'
+                })
+
+        resp = Response(serviceResponse, status=201)
+
+    except Exception as e:
+        logger.error(e)
+        abort(400)
+   
 
     resp.headers["Content-Type"] = "application/json"
 
@@ -236,48 +317,82 @@ def create_product():
 @product_module.route("/products/<product_id>", methods=['PUT'])
 def update_product(product_id):
     
-       #creates a new product. The product id is automatically generated.
-    product_dict = json.loads(request.data)
+    try:
+        #creates a new product. The product id is automatically generated.
+        product_dict = json.loads(request.data)
+        
+        product = [p for p in products if p['product_id'] == product_id]
 
-    products[0]['name'] = request.json.get('name', products[0]['name'])
-    products[0]['description'] = request.json.get('description', products[0]['description'])
-    products[0]['image_url'] = request.json.get('image_url', products[0]['image_url'])
-    
-    serviceResponse = json.dumps({'products': products[0]})
+        product[0]['name'] = request.json.get('name', product[0]['name'])
+        product[0]['description'] = request.json.get('description', product[0]['description'])
+        product[0]['image_url'] = request.json.get('image_url', product[0]['image_url'])
+        
+        product = {
+            'name': request.json.get('name', product[0]['name']), 
+            'description' : request.json.get('description', product[0]['description']),
+            'image_url' : request.json.get('image_url', product[0]['image_url'])
+        }
 
-    resp = Response(serviceResponse)
+        serviceResponse = json.dumps({
+                'products': product,
+                'status': 'UPDATED OK'
+                })
+
+    except Exception as e:
+        logger.error(e)
+        abort(404)
+   
+    resp = Response(serviceResponse, status=200)
     resp.headers["Content-Type"] = "application/json"
 
     return resp
 
 @product_module.route("/products/<product_id>", methods=['DELETE'])
 def delete_product(product_id):
-    
-    #deletes a product given its id.
-    serviceResponse = json.dumps({"products" : "Deletes a product with id: {}".format(product_id)})
+    try:
+        product = [p for p in products if p['product_id'] == product_id]
 
-    products.remove(products[0])
+        #deletes a product given its id.
+        serviceResponse = json.dumps({
+                'products' : product,
+                'status': 'DELETED OK'
+            })
+
+        products.remove(product[0])
+
+    except Exception as e:
+        logger.error(e)
+        abort(400)
+   
 
     resp = Response(serviceResponse)
     resp.headers["Content-Type"] = "application/json"
 
     return resp
 
+@product_module.errorhandler(404)
+def item_not_found(e):
+    # note that we set the 404 status explicitly
+    return json.dumps({'error': 'Product not found'}), 404
 
+@product_module.errorhandler(400)
+def bad_request(e):
+    # note that we set the 400 status explicitly
+    return json.dumps({'error': 'Bad request'}), 400
 ```
 
-### Step 1.9:  Add the app.py and custom logger
-
-In products folder, add the ff files:
-
-1. File Name: **app.py**
-
+### Step 1.8: Add app.py and custom_logger.py
+- Add app.py
+```bash
+$ cd ~/environment/myproject-product-restapi
+$ vi app.py
+```
 ```python
 from flask import Flask
 from flask_cors import CORS
 
 # Add new blueprints here
-from products.product_routes import product_module
+from product_routes import product_module
 
 # Initialize the flask application
 app = Flask(__name__)
@@ -288,11 +403,13 @@ app.register_blueprint(product_module)
 
 # Run the application
 app.run(host="0.0.0.0", port=8080, debug=True)
-
 ```
 
-2. File Name: **custom_logger.py**
-
+- custom_logger.py
+```bash
+$ cd ~/environment/myproject-product-restapi
+$ vi custom_logger.py
+```
 ```python
 import logging
 
@@ -309,24 +426,27 @@ def setup_logger(name):
     return logger
 ```
 
-
-### Step 1.10: Run Locally and Test
+### Step 1.9: Run Locally and Test
 ```bash
-$ cd ~/environment/myproject-product-restapi/api
+$ cd ~/environment/myproject-product-restapi
 $ python app.py
 $ curl http://localhost:8080
 ```
 
-### Step 1.11: Backend Unit Tests
-Todo
+### (TODO) Step 1.10: Backend Unit Tests
+
+### Step 1.11: Generate requirements.txt
+```bash
+$ cd ~/environment/myproject-product-restapi
+$ pip freeze > requirements.txt
+```
 
 ### Step 1.12: Create the Dockerfile
 ```bash
 $ cd ~/environment/myproject-product-restapi 
 $ vi Dockerfile
 ```
-```
-# Set base image to python
+```bash
 FROM python:3.6
 
 ENV PYTHONBUFFERED 1
@@ -360,17 +480,18 @@ Replace:
 ```bash
 $ docker build -t myproject-product-restapi .
 $ docker tag myproject-product-restapi:latest 707538076348.dkr.ecr.us-east-1.amazonaws.com/myproject-product-restapi:latest
-$ docker run -p 8000:8000 myproject-product-restapi:latest
+$ docker run -p 8080:8080 myproject-product-restapi:latest
 ```
 
 ### Step 1.14: Test CRUD Operations
 - Test Get all Products
-```
+```bash
 curl -X GET \
   http://localhost:8080/products \
   -H 'Host: localhost:8080'
 ```
-```
+Response:
+```json
 {
     "products": [
         {
@@ -389,18 +510,21 @@ curl -X GET \
             "description": "thin, soft paper, typically used for wrapping or protecting fragile or delicate articles.",
             "image_url": "https://via.placeholder.com/150",
             "name": "Tissue",
-            "providerId": "3f0f196c-4a7b-43af-9e29-6522a715342d"
+            "product_id": "3f0f196c-4a7b-43af-9e29-6522a715342d"
         }
     ]
 }
 ```
+
 - Test Get Product
-```
+```bash
 curl -X GET \
-  http://localhost:8080/products/d58ada00-1d53-4164-9453-b8fe3fb080c5 \
+  http://localhost:8080/products/4e53920c-505a-4a90-a694-b9300791f0ae \
   -H 'Host: localhost:8080' 
 ```
-```
+
+Response: 
+```bash
 {
     "products": {
         "description": "Used to wash body",
@@ -410,31 +534,38 @@ curl -X GET \
     }
 }
 ```
+
 - Test Create Product
-```
+```bash
 curl -X POST \
   http://localhost:8080/products \
   -H 'Content-Type: application/json' \
   -d '{
   "name":"Product G",
   "description": "Nulla nec dolor a ipsum viverra tincidunt eleifend id orci. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.",
-  "image_url": "https://via.placeholder.com/200"
+  "image_url": "https://via.placeholder.com/200",
 }'
 ```
-```
+
+Response
+```json
 {
     "products": {
         "description": "Nulla nec dolor a ipsum viverra tincidunt eleifend id orci. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.",
         "image_url": "https://via.placeholder.com/200",
         "name": "Product G",
-        "product_id": "e5870573-a9f0-49ee-bee3-d491bcfa5cf1"
-    }
+        "product_id": "83b2376e-955c-4f8e-96d5-95a5549ddf2d"
+    },
+    "status": "CREATED OK"
 }
 ```
+
+
+
 - Test Update Product
-```
+```bash
 curl -X PUT \
-  http://localhost:8080/products/d58ada00-1d53-4164-9453-b8fe3fb080c5 \
+  http://localhost:8080/products/4e53920c-505a-4a90-a694-b9300791f0ae \
   -H 'Content-Type: application/json' \
   -d '{
   "name":"egg 123",
@@ -442,51 +573,74 @@ curl -X PUT \
   "image_url": "product_image testes update test"
 }'
 ```
-```
+
+
+Response
+```json
 {
     "products": {
         "description": "my working description dasdasds",
         "image_url": "product_image testes update test",
-        "name": "egg 123",
-        "product_id": "4e53920c-505a-4a90-a694-b9300791f0ae"
-    }
+        "name": "egg 123"
+    },
+    "status": "UPDATED OK"
 }
 ```
+
 
 - Test Delete Product
-```
+```bash
 curl -X DELETE \
-  http://localhost:8080/products/b130f58b-c700-4bde-bad7-a1218ce60ccb \
+  http://localhost:8080/products/4e53920c-505a-4a90-a694-b9300791f0ae \
   -H 'Content-Type: application/json' 
 ```
-```
-{  
-"response":"Deletes a product with id: b130f58b-c700-4bde-bad7-a1218ce60ccb"  
+
+Response
+```json
+{
+    "products": [
+        {
+            "description": "my working description dasdasds",
+            "image_url": "product_image testes update test",
+            "name": "egg 123",
+            "product_id": "4e53920c-505a-4a90-a694-b9300791f0ae"
+        }
+    ],
+    "status": "DELETED OK"
 }
 ```
 
-### Step 1.15: Create the ECR Repository
+
+### Step 1.15: Push to Remote Repository
+```bash
+$ cd ~/environment/myproject-product-restapi
+$ git add .
+$ git commit -m "Initial Commit"
+$ git push origin master
 ```
+
+### Step 1.16: Create the ECR Repository
+```bash
 $ aws ecr create-repository --repository-name myproject-product-restapi
 ```
 
-### Step 1.16: Run login command to retrieve credentials for our Docker client and then automatically execute it (include the full command including the $ below).
-```
+### Step 1.17: Run login command to retrieve credentials for our Docker client and then automatically execute it (include the full command including the $ below).
+```bash
 $ $(aws ecr get-login --no-include-email)
 ```
 
-### Step 1.17: Push our Docker Image
-```
+### Step 1.18: Push our Docker Image
+```bash
 $ docker push 707538076348.dkr.ecr.us-east-1.amazonaws.com/myproject-product-restapi:latest
 ```
 
-### Step 1.18: Validate Image has been pushed
-```
+### Step 1.19: Validate Image has been pushed
+```bash
 $ aws ecr describe-images --repository-name myproject-product-restapi
 ```
 
 ### (Optional) Clean up
-```
+```bash
 $ aws ecr delete-repository --repository-name myproject-product-restapi --force
 $ aws codecommit delete-repository --repository-name myproject-product-restapi
 $ rm -rf ~/environment/myproject-product-restapi
