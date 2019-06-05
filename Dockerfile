@@ -16,7 +16,7 @@ ADD . /code/
 
 WORKDIR /code/api
 
-EXPOSE 8080
+EXPOSE 5000
 
 ENTRYPOINT ["python"]
 

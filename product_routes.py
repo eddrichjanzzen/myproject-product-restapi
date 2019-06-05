@@ -12,7 +12,7 @@ product_module = Blueprint('products', __name__)
 logger.info("Intialized product routes")
 
 THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
-my_file = os.path.join(THIS_FOLDER, 'products.json')
+my_file = os.path.join(THIS_FOLDER, 'products_boracay.json')
 
 # load products static db from json file
 with open(my_file) as f:
