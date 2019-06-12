@@ -42,7 +42,7 @@ def get_all_products():
 @product_module.route("/products/<string:product_id>", methods=['GET'])
 def get_product(product_id):
     
-    product = [p for p in products if p['product_id'] == product_id]
+    product = [p for p in products if p['id'] == product_id]
 
     try:
         serviceResponse = json.dumps({'products': product[0]})
@@ -62,7 +62,7 @@ def create_product():
         product_dict = json.loads(request.data)
 
         product = {
-            'product_id': str(uuid.uuid4()),
+            'id': str(uuid.uuid4()),
             'name': product_dict['name'],
             'description': product_dict['description'],
             'image_url': product_dict['image_url']
@@ -94,7 +94,7 @@ def update_product(product_id):
         #creates a new product. The product id is automatically generated.
         product_dict = json.loads(request.data)
         
-        product = [p for p in products if p['product_id'] == product_id]
+        product = [p for p in products if p['id'] == product_id]
 
         product[0]['name'] = request.json.get('name', product[0]['name'])
         product[0]['description'] = request.json.get('description', product[0]['description'])
@@ -123,7 +123,7 @@ def update_product(product_id):
 @product_module.route("/products/<product_id>", methods=['DELETE'])
 def delete_product(product_id):
     try:
-        product = [p for p in products if p['product_id'] == product_id]
+        product = [p for p in products if p['id'] == product_id]
 
         #deletes a product given its id.
         serviceResponse = json.dumps({
