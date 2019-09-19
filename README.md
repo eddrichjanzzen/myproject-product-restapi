@@ -474,7 +474,7 @@ CMD ["app.py"]
 
 ### Step 1.13: Build, Tag and Run the Docker Image locally
 Replace:
-- AccountId: 707538076348
+- AccountId: 707538076348 <--- get this from IAM user
 - Region: us-east-1
 
 ```bash
@@ -630,8 +630,13 @@ $ $(aws ecr get-login --no-include-email)
 ```
 
 ### Step 1.18: Push our Docker Image
+
+Replace:
+- AccountId: 707538076348 <--- get this from IAM user
+- Region: us-east-1
+
 ```bash
-$ docker push 707538076348.dkr.ecr.us-east-1.amazonaws.com/myproject-product-restapi:latest
+$ docker push <AccountId>.dkr.ecr.<Region>.amazonaws.com/myproject-product-restapi:latest
 ```
 
 ### Step 1.19: Validate Image has been pushed
