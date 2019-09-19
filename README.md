@@ -489,123 +489,141 @@ curl -X GET \
   http://localhost:5000/products \
   -H 'Host: localhost:5000'
 ```
-Response:
-```json
+```bash
 {
     "products": [
         {
-            "description": "Used to wash body",
-            "image_url": "https://via.placeholder.com/150",
-            "name": "Soap",
-            "product_id": "4e53920c-505a-4a90-a694-b9300791f0ae"
+            "id": "7c72e357-7228-4b6c-bdd0-d9aab71512ac",
+            "name": "Helicopter Beach Tour",
+            "description": "Boracay Helicopter Beach Tour – It’s never been better. Have a 10-minute adrenaline-filled experience of touring the island by helicopter! See Boracay’s white sands, blue green waters, and reefs from above! This is the ultimate chance to snap birds-eye-view photographs!",
+            "image_url": "https://cdn5.myboracayguide.com/2010/01/Boracay-Helicopter-Tours-Boracay-Activity-07-400x267.jpg",
+            "price": "5200"
         },
         {
-            "description": "Used to wash hair",
-            "image_url": "https://via.placeholder.com/150",
-            "name": "Shampoo",
-            "product_id": "2b473002-36f8-4b87-954e-9a377e0ccbec"
+            "id": "36b74f58-084d-4b67-9daa-a046296604e6",
+            "name": "Ariels Point",
+            "description": "Let us help you experience everything good about Ariel’s Point. Many guests come for the 5 different levels of cliff diving; the cliff diving levels are generally suitable for all types of adventurers. Those that want a great photo in a naturally beautiful place while having a bit of a jump, won’t be disappointed or terrified. Similarly, hardcore guests that want to jump from the top of a volcanically hewn outcrop into the deep blue arms of the sea won’t be let down either.  Ariel’s Point is located near the rustic fishing town of Buruanga, a half hour boat ride from Boracay’s white beach. Gather with other travelers as you snorkel, paddle in a native canoe, or just laze under the sun while enjoying the uniquely rough, & comfortable environment.",
+            "image_url": "https://cdn5.myboracayguide.com/2016/04/Ariels-Point-Boracay-Activities-1-400x267.jpg",
+            "price": "2800"
         },
         {
-            "description": "thin, soft paper, typically used for wrapping or protecting fragile or delicate articles.",
-            "image_url": "https://via.placeholder.com/150",
-            "name": "Tissue",
-            "product_id": "3f0f196c-4a7b-43af-9e29-6522a715342d"
-        }
-    ]
+            "id": "420cb55b-99cb-45b1-a860-d079cc1d2cea",
+            "name": "Stand Up Paddle on the Beach",
+            "description": "Experience how it’s like to glide on the water surface from a Stand-Up Paddle Board. Paddling on a Stand-Up Paddle board for lets you commune with the current of the sea, either by standing up, kneeling or sitting down. It also provides a good exercise to maintain your balance and to strengthen your core, while you paddle into the water to workout your arms and upper body.",
+            "image_url": "https://cdn5.myboracayguide.com/2016/10/Stand-Up-Paddle-Boracay-Activity-01-400x267.jpg",
+            "price": "1000"
+        },
+        {
+            "id": "6aa0ed0f-ddcc-42ff-8059-eea5ee40496d",
+            "name": "Parasailing",
+            "description": "Parasailing on Boracay is a great experience for a few adventure-minded individuals. Imagine being whisked into the sky while strapped in a seat covered by a colorful parachute! This is a popular activity where riders can view the beautiful shoreline of white beach from above while being pulled by a boat. This is a fun and exciting experience for those who love heights and want a birds-eye-view of the whole island. Up to two guests can occupy the same canopy.",
+            "image_url": "https://cdn5.myboracayguide.com/2016/04/Parasailing-Boracay-Activities-400x267.jpg",
+            "price": "2500"
+        },
+        {
+            "id": "6b3c211a-53f3-4c2a-a4f3-dc1fd5d42bfc",
+            "name": "Group Island Hopping",
+            "description": "Make new friends by joining a shared boat cruise where you will cruise the shores of Boracay in a traditional Banka boat. Visit the famous Puka shell beach and take a stroll on the beach, swim in the azure waters or just relax with a fresh coconut enjoying the sun. Stop off for a snorkel and see Boracay’s beautiful tropical fish and corals.  Finish the trip with a delicious buffet lunch.",
+            "image_url": "https://cdn5.myboracayguide.com/2019/03/Boracay-Group-Island-Hopping-Boracay-Activities-01-400x267.jpg",
+            "price": "1500"
+        },
+        {
+            "id": "91e759dc-f385-42e1-8098-a44399bebce8",
+            "name": "Ultimate Cliff Jumping Island Hopping Adventure",
+            "description": "Experience a day of fun on Magic Island and have the thrill of a lifetime with 5 different levels of cliff jumping. Relax and swim or go snorkeling around the Island.",
+            "image_url": "https://cdn5.myboracayguide.com/2016/06/Island-Hopping-Boracay-Activities-400x267-400x267.jpg",
+            "price": "2200"
+        },
+        {
+            "id": "8f086c95-df7d-4914-98b5-e3378663e967",
+            "name": "Paraw Sailing",
+            "description": "Paraw Sailing is a local sail boat activity. The boats use two outriggers and two sails. Experience the traditional way of sailing and discover the best sites around the island, perfect for photography – though do note on days with heavier waves the water can kick up a bit (exciting!). If you schedule your activity for later in the afternoon you can take advantage of the incredible sunset while relaxing on the boat for half an hour. Sea sickness? usually not a problem as the boats tend to stay closer into the shore and cut through the waves very well.  Paraw sailing around Boracay is probably a really good way to ease yourself into the sea and find out how much you like it.",
+            "image_url": "https://cdn5.myboracayguide.com/2016/03/Paraw-Sailing-Boracay-Activities-400x267.jpg",
+            "price": "3000"
+        }, ......
+..............................
+more data
+..............................
+  ]
 }
 ```
-
 - Test Get Product
 ```bash
 curl -X GET \
-  http://localhost:5000/products/4e53920c-505a-4a90-a694-b9300791f0ae \
-  -H 'Host: localhost:5000' 
+  http://localhost:5000/products/8f086c95-df7d-4914-98b5-e3378663e967 \
+ -H 'Content-Type: application/json' \
 ```
-
-Response: 
 ```bash
-{
+ {
     "products": {
-        "description": "Used to wash body",
-        "image_url": "https://via.placeholder.com/150",
-        "name": "Soap",
-        "product_id": "4e53920c-505a-4a90-a694-b9300791f0ae"
+        "id": "91e759dc-f385-42e1-8098-a44399bebce8",
+        "name": "Ultimate Cliff Jumping Island Hopping Adventure",
+        "description": "Experience a day of fun on Magic Island and have the thrill of a lifetime with 5 different levels of cliff jumping. Relax and swim or go snorkeling around the Island.",
+        "image_url": "https://cdn5.myboracayguide.com/2016/06/Island-Hopping-Boracay-Activities-400x267-400x267.jpg",
+        "price": "2200"
     }
 }
 ```
-
 - Test Create Product
 ```bash
 curl -X POST \
   http://localhost:5000/products \
   -H 'Content-Type: application/json' \
-  -d '{
-  "name":"Product G",
-  "description": "Nulla nec dolor a ipsum viverra tincidunt eleifend id orci. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.",
-  "image_url": "https://via.placeholder.com/200",
-}'
+  -d ' {
+          "name": "4 Hour Private Boracay Island Hopping Package",
+          "description": "Your Boracay adventure experience will not be complete without this trip! The island is home to more than a dozen undeveloped beaches, turquoise waters and colorful coral reefs! Feast your eyes on the amazing scenery, snorkel and get a glimpse of the thriving sea life!The boat trip includes stopover at some amazing places in Boracay where you can go snorkeling and swimming. Snorkeling gears will be provided for you.",
+          "image_url": "https://cdn5.myboracayguide.com/2016/09/Private-Island-Hopping-Boracay-Activity-8-400x267.jpg",
+          "price": 2900
+        }'
 ```
-
-Response
-```json
+```bash
 {
     "products": {
-        "description": "Nulla nec dolor a ipsum viverra tincidunt eleifend id orci. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.",
-        "image_url": "https://via.placeholder.com/200",
-        "name": "Product G",
-        "product_id": "83b2376e-955c-4f8e-96d5-95a5549ddf2d"
-    },
-    "status": "CREATED OK"
+        "id": "75ffb0fa-e978-4acb-9176-903fdd605edc",
+        "name": "4 Hour Private Boracay Island Hopping Package",
+        "description": "Your Boracay adventure experience will not be complete without this trip! The island is home to more than a dozen undeveloped beaches, turquoise waters and colorful coral reefs! Feast your eyes on the amazing scenery, snorkel and get a glimpse of the thriving sea life!The boat trip includes stopover at some amazing places in Boracay where you can go snorkeling and swimming. Snorkeling gears will be provided for you.",
+        "image_url": "https://cdn5.myboracayguide.com/2016/09/Private-Island-Hopping-Boracay-Activity-8-400x267.jpg",
+        "price": "2900",
+        "status": "CREATED OK"
+    }
 }
 ```
-
-
-
 - Test Update Product
 ```bash
 curl -X PUT \
-  http://localhost:5000/products/4e53920c-505a-4a90-a694-b9300791f0ae \
+  http://localhost:5000/products/2178bb44-32f1-4d22-bc95-05cd039a3067 \
   -H 'Content-Type: application/json' \
-  -d '{
-  "name":"egg 123",
-  "description": "my working description dasdasds",
-  "image_url": "product_image testes update test"
-}'
+  -d ' {
+         "name": "4 Hour Private Boracay Island Hopping Package",
+         "description": "Your Boracay adventure experience will not be complete without this trip! The island is home to more than a dozen undeveloped beaches, turquoise waters and colorful coral reefs! Feast your eyes on the amazing scenery, snorkel and get a glimpse of the thriving sea life!The boat trip includes stopover at some amazing places in Boracay where you can go snorkeling and swimming. Snorkeling gears will be provided for you.",
+         "image_url": "https://cdn5.myboracayguide.com/2016/09/Private-Island-Hopping-Boracay-Activity-8-400x267.jpg",
+         "price": 2900
+        }'
 ```
-
-
-Response
-```json
+```bash
 {
     "products": {
-        "description": "my working description dasdasds",
-        "image_url": "product_image testes update test",
-        "name": "egg 123"
-    },
-    "status": "UPDATED OK"
+      "name": "4 Hour Private Boracay Island Hopping Package",
+      "description": "Your Boracay adventure experience will not be complete without this trip! The island is home to more than a dozen undeveloped beaches, turquoise waters and colorful coral reefs! Feast your eyes on the amazing scenery, snorkel and get a glimpse of the thriving sea life!The boat trip includes stopover at some amazing places in Boracay where you can go snorkeling and swimming. Snorkeling gears will be provided for you.",
+      "image_url": "https://cdn5.myboracayguide.com/2016/09/Private-Island-Hopping-Boracay-Activity-8-400x267.jpg",
+      "price": 2900,
+      "status": "UPDATED OK"
+    } 
 }
 ```
-
 
 - Test Delete Product
 ```bash
 curl -X DELETE \
-  http://localhost:5000/products/4e53920c-505a-4a90-a694-b9300791f0ae \
+  http://localhost:5000/products/2178bb44-32f1-4d22-bc95-05cd039a3067 \
   -H 'Content-Type: application/json' 
 ```
-
-Response
-```json
+```bash
 {
-    "products": [
-        {
-            "description": "my working description dasdasds",
-            "image_url": "product_image testes update test",
-            "name": "egg 123",
-            "product_id": "4e53920c-505a-4a90-a694-b9300791f0ae"
-        }
-    ],
-    "status": "DELETED OK"
+    "products": {
+        "id": "2178bb44-32f1-4d22-bc95-05cd039a3067",
+        "status": "DELETED OK"
+    }
 }
 ```
 
