@@ -479,7 +479,7 @@ Replace:
 
 ```bash
 $ docker build -t <AccountId>.dkr.ecr.<Region>.amazonaws.com/myproject-product-restapi:latest .
-$ docker run -p 5000:5000 myproject-product-restapi:latest
+$ docker run -p 5000:5000  <AccountId>.dkr.ecr.<Region>.amazonaws.com/myproject-product-restapi:latest
 ```
 
 ### Step 1.14: Test CRUD Operations
