@@ -475,11 +475,10 @@ CMD ["app.py"]
 ### Step 1.13: Build, Tag and Run the Docker Image locally
 Replace:
 - AccountId: 707538076348 <--- get this from IAM user
-- Region: us-east-1
+- Region: ap-southeast-1
 
 ```bash
-$ docker build -t myproject-product-restapi .
-$ docker tag myproject-product-restapi:latest 707538076348.dkr.ecr.us-east-1.amazonaws.com/myproject-product-restapi:latest
+$ docker build -t <AccountId>.dkr.ecr.<Region>.amazonaws.com/myproject-product-restapi:latest .
 $ docker run -p 5000:5000 myproject-product-restapi:latest
 ```
 
